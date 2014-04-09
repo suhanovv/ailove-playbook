@@ -1,0 +1,44 @@
+---
+
+- name: Files | Create directory structure
+  file: path={{ project_dir }}/{{ item.name }} mode={{ item.mode }} state=directory
+  with_items:
+  - { name: 'cache', mode: 777 }
+  - { name: 'conf', mode: 755 }
+  - { name: 'data', mode: 777 }
+  - { name: 'logs', mode: 755 }
+  - { name: 'repo', mode: 777 }
+  - { name: 'tmp', mode: 777 }
+
+
+- name: Files | Get database conf
+  command: wget --user={{ factory_user }}@{{ project }} --password={{ factory_pass }} ftp://{{ dev_server_url }}/conf/database chdir={{ conf_dir }}
+
+- name: Files | Replace db host
+  lineinfile: dest={{ conf_dir }}/database regexp='DB_HOST = localhost' line='DB_HOST = {{ dev_server_url }}'
+
+- name: Users | Create ftp user
+  user: name={{ ftp_user }} createhome=no home={{ project_dir }} password={{ ftp_pass }}
+
+- name: Packages | Update cache
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Packages | Install default packages
+  apt: pkg={{ item }}
+  with_items:
+    - vsftpd
+    - git
+    - libxml2-dev
+    - libxslt-dev
+    - libjpeg-dev
+    - gettext
+
+- name: Git | Get project from factory
+  git: repo=https://{{ factory_user }}:{{ factory_pass }}@{{ factory_url }}/git/{{ project }} dest={{ repo_dir }}
+
+- name: Vsftpd | Init ftp config
+  copy: src=vsftpd.conf dest=/etc/vsftpd.conf owner=root group=root mode=0644
+  notify:
+  - restart vsftpd
+
+

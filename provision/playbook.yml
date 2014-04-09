@@ -1,0 +1,20 @@
+---
+- hosts: all
+  sudo: yes
+  vars:
+    project: '{{ ansible_hostname }}'
+    project_dir: '/srv/www/{{ ansible_hostname }}'
+    repo_dir: '{{ project_dir }}/repo/dev'
+    conf_dir: '{{ project_dir }}/conf'
+
+  vars_files:
+    - "{{ project_credentials }}"
+
+  tasks:
+  - name: Debug
+    debug: msg="{{ environment }}"
+
+  roles:
+#  - default
+  - { role: python, is_api: '{{ is_api }}', when: "'{{ environment }}' == 'python'" }
+  - { role: php, when: "'{{ environment }}' == 'php'" }

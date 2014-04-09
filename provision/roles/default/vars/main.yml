@@ -1,0 +1,3 @@
+---
+ftp_user: "{{ project }}"
+ftp_pass: $6$rounds=100000$9/WFjUSSr7lhRiDY$iQTjQKnYdn2uAcnjMjOJQMuWUriq0vL0on74Gzzr4gF7I.n.qbGsRbV5OYdZNJ1Ec4GTYfAXysHIgk3PWBerV.

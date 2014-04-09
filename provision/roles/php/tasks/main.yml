@@ -1,0 +1,3 @@
+---
+- name: Task in php role
+  debug: msg="php role"

@@ -1,0 +1,51 @@
+server {
+    listen 80;
+    server_name ansible.lo;
+
+    access_log /srv/www/{{ project }}/logs/{{ project }}.nginx-acc;
+    error_log /srv/www/{{ project }}/logs/{{ project }}.nginx-err;
+
+
+    location / {
+        try_files $uri $uri/index.html @rewrite;
+        root /srv/www/{{ project }}/repo/dev/htdocs;
+    }
+    {% if is_api %}
+    location @rewrite {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* ^(/api/(.*))|(/api/(.*))|(/grappelli/(.*))|(/complete/(.*))|(/proxy/(.*))|(/login/(.*))|(/logout/(.*))|(/ckeditor/(.*))|(/docs/(.*))|(/admin(.*))|(/admin/(.*))$ {
+        try_files  /srv/www/{{ project }}/repo/dev/htdocs @apache;
+    }
+    {% endif %}
+
+
+    location @apache {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_read_timeout 300;
+        client_max_body_size 256m;
+
+        proxy_buffer_size 16k;
+        proxy_buffers 32 16k;
+    }
+
+    location ^~ /data/ {
+        root /srv/www/{{ project }};
+    }
+
+    location ^~ /static/ {
+
+        alias /srv/www/{{ project }}/data/static/dev/;
+    }
+
+    location ~* \.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|doc|xls|exe|pdf|ppt|txt|tar|mid|midi|wav|bmp|rtf|js|swf|flv|avi|djvu|mp3|mp4|ogv)$ {
+        root /srv/www/{{ project }}/repo/dev/htdocs;
+    }
+
+}

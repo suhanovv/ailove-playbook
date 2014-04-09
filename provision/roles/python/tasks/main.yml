@@ -1,0 +1,57 @@
+---
+
+- name: Packages | Install packages
+  apt: pkg={{ item }} state=latest
+  with_items:
+  - libpq-dev
+  - python-dev
+  - nginx
+  - apache2
+  - libapache2-mod-wsgi
+
+- name: Pip | Get pip installer
+  get_url: url=https://raw.github.com/pypa/pip/master/contrib/get-pip.py dest=/tmp/get-pip.py mode=0766
+
+- name: Pip | Install pip
+  command: /tmp/get-pip.py
+
+- name: Pip | Install virtualenv
+  pip: name=virtualenv
+
+- name: Pip | Create virtualenv
+  shell: virtualenv "{{ venv_dir }}" creates="{{ venv_dir }}/bin/activate"
+
+- name: Pip | Install pip packages
+  pip: virtualenv={{ venv_dir }} requirements={{ repo_dir }}/requirements.txt
+
+- name: Project | collect static
+  django_manage: command=collectstatic app_path={{ repo_dir }} virtualenv={{ venv_dir }}
+
+- name: Apache | copy ports.conf
+  copy: src=apache_ports.conf dest=/etc/apache2/ports.conf owner=root group=root mode=0644
+
+- name: Apache | Create virtual host
+  template: src=apache_vhost_{{ ansible_distribution_release }}.j2 dest=/etc/apache2/sites-available/{{ project }} mode=0644
+
+- name: Apache | Deactivate default virtual host
+  command: /usr/sbin/a2dissite default removes=/etc/apache2/sites-enabled/000-default
+
+- name: Apache | Activate virtual host
+  command: /usr/sbin/a2ensite {{ project }} creates=/etc/apache2/sites-enabled/{{ project }}
+  notify:
+  - apache-reload
+
+- name: Files | chmod data
+  file: path={{ project_dir }}/data mode=0777 recurse=yes
+
+- name: Nginx | create vhost
+  template: src=nginx.j2 dest=/etc/nginx/sites-available/{{ project }} mode=0644
+
+- name: Nginx | disable default host
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: Nginx | enable project host
+  file: path=/etc/nginx/sites-enabled/{{ project }} src=/etc/nginx/sites-available/{{ project }} state=link
+  notify:
+  - nginx-reload
+
