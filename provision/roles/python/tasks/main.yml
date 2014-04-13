@@ -31,7 +31,12 @@
   copy: src=apache_ports.conf dest=/etc/apache2/ports.conf owner=root group=root mode=0644
 
 - name: Apache | Create virtual host
+  template: src=apache_vhost_{{ ansible_distribution_release }}.j2 dest=/etc/apache2/sites-available/{{ project }}.conf mode=0644
+  when: "'{{ ansible_distribution_release }}' == 'saucy'"
+
+- name: Apache | Create virtual host
   template: src=apache_vhost_{{ ansible_distribution_release }}.j2 dest=/etc/apache2/sites-available/{{ project }} mode=0644
+  when: "'{{ ansible_distribution_release }}' == 'precise'"
 
 - name: Apache | Deactivate default virtual host
   command: /usr/sbin/a2dissite default removes=/etc/apache2/sites-enabled/000-default
