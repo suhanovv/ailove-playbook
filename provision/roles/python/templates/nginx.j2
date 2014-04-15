@@ -1,21 +1,19 @@
 server {
     listen 80;
-    server_name ansible.lo;
+    server_name {{ project }}.lo;
 
     access_log /srv/www/{{ project }}/logs/{{ project }}.nginx-acc;
     error_log /srv/www/{{ project }}/logs/{{ project }}.nginx-err;
 
 
     location / {
-        try_files $uri $uri/index.html @rewrite;
+        try_files $uri $uri/ $uri/index.html /index.html @apache;
         root /srv/www/{{ project }}/repo/dev/htdocs;
     }
     {% if is_api %}
-    location @rewrite {
-        try_files $uri $uri/ /index.html;
-    }
 
-    location ~* ^(/api/(.*))|(/api/(.*))|(/grappelli/(.*))|(/complete/(.*))|(/proxy/(.*))|(/login/(.*))|(/logout/(.*))|(/ckeditor/(.*))|(/docs/(.*))|(/admin(.*))|(/admin/(.*))$ {
+    location ~* ^(/ru/api/(.*))|(/en/api/(.*))|(/grappelli/(.*))|(/ckeditor/(.*))|(/docs/(.*))|(/admin(.*))|(/admin/(.*))$ {
+
         try_files  /srv/www/{{ project }}/repo/dev/htdocs @apache;
     }
     {% endif %}

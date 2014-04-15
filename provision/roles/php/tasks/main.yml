@@ -1,3 +1,9 @@
 ---
-- name: Task in php role
-  debug: msg="php role"
+- name: Packages | Install packages
+  apt: pkg={{ item }} state=latest
+  with_items:
+  - libpq-dev
+  - python-dev
+  - nginx
+  - apache2
+  - libapache2-mod-wsgi

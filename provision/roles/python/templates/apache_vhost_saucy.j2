@@ -1,13 +1,13 @@
-<VirtualHost *:80>
+<VirtualHost *>
     ServerAdmin webmaster@localhost
 
     DocumentRoot /srv/www/{{ project }}/repo/dev/htdocs
 
-    ServerName tpsid.lo
+    ServerName {{ project }}.lo
     CustomLog /srv/www/{{ project }}/logs/{{ project }}.lo-acc combined
     ErrorLog /srv/www/{{ project }}/logs/{{ project }}.lo-err
 
-    WSGIDaemonProcess tpsid python-path=/srv/www/{{ project }}/python/lib/python2.7/site-packages
+    WSGIDaemonProcess {{ project }} python-path=/srv/www/{{ project }}/python/lib/python2.7/site-packages
 
     WSGIProcessGroup {{ project }}
 
