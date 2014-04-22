@@ -1,0 +1,41 @@
+<VirtualHost *>
+    ServerAdmin webmaster@localhost
+
+    DocumentRoot /srv/www/{{ project }}/repo/dev/htdocs
+
+    ServerName {{ project }}.lo
+    CustomLog /srv/www/{{ project }}/logs/{{ project }}.lo-acc combined
+    ErrorLog /srv/www/{{ project }}/logs/{{ project }}.lo-err
+
+    WSGIDaemonProcess {{ project }} python-path=/srv/www/{{ project }}/python/lib/python2.7/site-packages
+
+    WSGIProcessGroup {{ project }}
+
+    WSGIScriptAlias / /srv/www/{{ project }}/repo/dev/wsgi/django.wsgi
+
+    <Directory /srv/www/{{ project }}/repo/master/wsgi>
+        Options Includes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    Alias /static /srv/www/{{ project }}/data/static/dev
+
+    <Directory /srv/www/{{ project }}/data/static/dev>
+        Options Includes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    Alias /data/ /srv/www/{{ project }}/data/
+
+    <Directory /srv/www/{{ project }}/data>
+        Options Includes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+</VirtualHost>

@@ -1,0 +1,38 @@
+<VirtualHost *>
+    ServerAdmin webmaster@localhost
+
+    DocumentRoot /srv/www/{{ project }}/repo/dev/htdocs
+
+    ServerName {{ project }}.lo
+    CustomLog /srv/www/{{ project }}/logs/{{ project }}.lo-acc combined
+    ErrorLog /srv/www/{{ project }}/logs/{{ project }}.lo-err
+
+    <Location />
+        php_admin_value open_basedir "/usr/share/php/PEAR:/srv/www/{{ project }}:/tmp"
+        php_admin_value upload_tmp_dir "/srv/www/{{ project }}/tmp"
+        php_admin_value session.save_path "/srv/www/{{ project }}/tmp"
+        php_admin_value memory_limit "256M"
+        php_value post_max_size "256M"
+        php_value upload_max_filesize "256M"
+    </Location>
+
+
+
+    Alias /data/ /srv/www/{{ project }}/data/
+
+    <Directory /srv/www/{{ project }}/data>
+        Options Includes FollowSymLinks MultiViews
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    <Directory />
+        Options Includes FollowSymLinks MultiViews
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+</VirtualHost>
+
+
+
