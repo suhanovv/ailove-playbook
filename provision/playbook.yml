@@ -15,6 +15,5 @@
     debug: msg="{{ environment }}"
 
   roles:
-#  - default
-  - { role: python, is_api: '{{ is_api }}', when: "'{{ environment }}' == 'python'" }
-  - { role: php, when: "'{{ environment }}' == 'php'" }
+  - default
+  - { role: '{{ environment }}', is_api: '{{ is_api }}' }

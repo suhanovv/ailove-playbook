@@ -30,6 +30,11 @@
 - name: Apache | copy ports.conf
   copy: src=apache_ports.conf dest=/etc/apache2/ports.conf owner=root group=root mode=0644
 
+- name: Apache | copy envvars.conf
+  copy: src=envvars.conf dest=/etc/apache2/envvars owner=root group=root mode=0644
+  notify:
+  - apache-restart
+
 - name: Apache | Create virtual host
   template: src=apache_vhost_{{ ansible_distribution_release }}.j2 dest=/etc/apache2/sites-available/{{ project }}.conf mode=0644
   when: "'{{ ansible_distribution_release }}' == 'saucy'"
